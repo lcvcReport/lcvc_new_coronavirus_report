@@ -65,7 +65,7 @@
       <!--只要有发热状态-->
       <template  v-if="form.myHealth.search('发热')!= -1">
         <mt-cell title="体温（℃）:"></mt-cell>
-        <mt-radio v-model="form.temperature" :options="confirmIllOptions"></mt-radio>
+        <mt-field  v-model="form.temperature"></mt-field>
       </template>
       <mt-cell title="当天家庭成员健康状况："></mt-cell>
       <mt-radio v-model="form.myfamilyHealth" :options="myHealthOptions"></mt-radio>
