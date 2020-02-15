@@ -161,7 +161,7 @@
 
       <!--只要是符合任何异常情况之一-->
       <template
-        v-if="form.arriveHuBei=='true' || form.arriveWuHan=='true'||form.comefromHuBei=='true' || form.comefromWuHan=='true' ||form.touchHuBeiPerson=='true'||form.comeFromGZHH=='true'||form.arriveGZHH=='true'"
+        v-if="form.myHealth.search('发热')!= -1||form.arriveHuBei=='true' || form.arriveWuHan=='true'||form.comefromHuBei=='true' || form.comefromWuHan=='true' ||form.touchHuBeiPerson=='true'||form.comeFromGZHH=='true'||form.arriveGZHH=='true'"
       >
         <mt-cell title="目前在柳居住地（详细到户号）："></mt-cell>
         <mt-field  placeholder="请输入" v-model="form.addressInLiuZhou"></mt-field>
