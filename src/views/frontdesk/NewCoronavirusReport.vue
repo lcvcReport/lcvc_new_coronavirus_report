@@ -62,6 +62,11 @@
       <!-- //当天健康情况汇报，以及和另外7个表的重叠 -->
       <mt-cell title="当天本人健康状况："></mt-cell>
       <mt-radio v-model="form.myHealth" :options="myHealthOptions"></mt-radio>
+      <!--只要有发热状态-->
+      <template  v-if="form.myHealth.search('发热')!= -1">
+        <mt-cell title="体温（℃）:"></mt-cell>
+        <mt-radio v-model="form.temperature" :options="confirmIllOptions"></mt-radio>
+      </template>
       <mt-cell title="当天家庭成员健康状况："></mt-cell>
       <mt-radio v-model="form.myfamilyHealth" :options="myHealthOptions"></mt-radio>
 
@@ -70,6 +75,7 @@
 
       <mt-cell title="是否为市外人员（回到柳州市不到半年）:"></mt-cell>
       <mt-radio v-model="outlander" :options="yesOrNoOptions" @change="outlanderChange"></mt-radio>
+
 
       <!--如果是市外人员-->
       <template  v-if="outlander=='true'">
@@ -157,7 +163,7 @@
       <template
         v-if="form.arriveHuBei=='true' || form.arriveWuHan=='true'||form.comefromHuBei=='true' || form.comefromWuHan=='true' ||form.touchHuBeiPerson=='true'||form.comeFromGZHH=='true'||form.arriveGZHH=='true'"
       >
-        <mt-cell title="柳州居住地："></mt-cell>
+        <mt-cell title="目前在柳居住地（详细到户号）："></mt-cell>
         <mt-field  placeholder="请输入" v-model="form.addressInLiuZhou"></mt-field>
       </template>
 
@@ -355,6 +361,7 @@
                 this.$set(this.form,'schoolClass',''); //年级班级（专业）
                 this.$set(this.form,'confirmIll',''); //是否为疑似病例
                 this.$set(this.form,'myHealth',''); //当天本人健康状况
+                this.$set(this.form,'temperature',''); //发烧多少度，如果发烧的话需要填写
                 this.$set(this.form,'myfamilyHealth',''); //当天家庭健康状况
                 this.$set(this.form,'intro',''); //其他说明
                 this.$set(this.form,'stayInHubei',''); //现在是否仍在湖北出差、休假、旅游
