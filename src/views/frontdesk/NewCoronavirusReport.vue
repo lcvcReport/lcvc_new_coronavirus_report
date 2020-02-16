@@ -73,12 +73,7 @@
       <mt-cell title="是否为疑似病例或确诊病例:"></mt-cell>
       <mt-radio v-model="form.confirmIll" :options="confirmIllOptions"></mt-radio>
 
-      <mt-cell title="是否为市外人员（回到柳州市不到半年）:"></mt-cell>
-      <mt-radio v-model="outlander" :options="yesOrNoOptions" @change="outlanderChange"></mt-radio>
 
-
-      <!--如果是市外人员-->
-      <template  v-if="outlander=='true'">
         <!-- //来自武汉湖北，或是去过武汉湖北相关字段 -->
         <mt-cell title="是否来自湖北省(不包括武汉市)："></mt-cell>
         <mt-radio v-model="form.comefromHuBei" :options="comefromHuBeiOptions"></mt-radio>
@@ -86,16 +81,14 @@
         <mt-radio v-model="form.comefromWuHan" :options="comefromWuHanOptions"></mt-radio>
         <mt-cell title="是否来自广东、浙江、河南、湖南省："></mt-cell>
         <mt-radio v-model="form.comeFromGZHH" :options="yesOrNoOptions"></mt-radio>
-      </template>
+
       <!-- 如果不是市外人员，则询问是否去过外省等地 -->
-      <template  v-if="outlander=='false'">
         <mt-cell title="1月25日后，是否去过湖北(不包括武汉市)："></mt-cell>
         <mt-radio v-model="form.arriveHuBei" :options="arriveHuBeiOptions"></mt-radio>
         <mt-cell title="1月25日后，是否到过武汉："></mt-cell>
         <mt-radio v-model="form.arriveWuHan" :options="arriveWuHanOptions"></mt-radio>
         <mt-cell title="1月25日后，是否到过广东、浙江、河南、湖南省："></mt-cell>
         <mt-radio v-model="form.arriveGZHH" :options="yesOrNoOptions"></mt-radio>
-      </template>
 
        <!--只要是去过广东、浙江、河南、湖南省的-->
       <template  v-if="form.comeFromGZHH=='true'||form.arriveGZHH=='true'">
@@ -187,7 +180,6 @@
             return {
                 lcvc_logo:require('@/assets/lcvc_logo.jpg'),
                 showXinxi: false,
-                outlander:'',//是否为市外人员，该选项为true则显示市外人员回来的选项；否则只显示是否去过外省等选项
                 form: {},
 
                 identityOptions: [
@@ -328,6 +320,7 @@
         },
         methods: {
             initForm(){//初始化表单
+                this.showXinxi=false;//是否显示除了身份，工号/学号外的信息
                 this.$set(this.form,'identity',''); //身份
                 this.$set(this.form,'teacherNumber',''); //教工号
                 this.$set(this.form,'studentNumber',''); //学号
@@ -365,6 +358,48 @@
                 this.$set(this.form,'myfamilyHealth',''); //当天家庭健康状况
                 this.$set(this.form,'intro',''); //其他说明
                 this.$set(this.form,'stayInHubei',''); //现在是否仍在湖北出差、休假、旅游
+            },
+             getForm(data){
+                this.$set(this.form,'identity',data.identity); //身份
+                this.$set(this.form,'teacherNumber',data.teacherNumber); //教工号
+                this.$set(this.form,'studentNumber',data.studentNumber); //学号
+                this.$set(this.form,'name',data.name); //姓名
+                this.$set(this.form,'sex',data.sex); //性别
+                this.$set(this.form,'workType',data.workType); //工种
+                this.$set(this.form,'registeredPlace',data.registeredPlace); //户口所在地
+                this.$set(this.form,'identityCard',data.identityCard); //身份证号码
+                this.$set(this.form,'tel',data.tel); //手机号码
+                this.$set(this.form,'practiceWorkStatus',data.practiceWorkStatus);
+                //专门处理逻辑字段的赋值
+                 this.$set(this.form,'practice',String(data.practice)); //顶岗实习
+                 this.$set(this.form,'comefromWuHan',String(data.comefromWuHan)); //是否来自武汉市
+                 this.$set(this.form,'comefromHuBei',String(data.comefromHuBei)); //是否来自湖北
+                 this.$set(this.form,'arriveHuBei',String(data.arriveHuBei)); //是否去过湖北省
+                 this.$set(this.form,'arriveWuHan',String(data.arriveWuHan)); ////是否来自湖北(不包括武汉市)
+                 this.$set(this.form,'comeFromGZHH',String(data.comeFromGZHH)); //是否来自广东、浙江、河南、湖南省。
+                 this.$set(this.form,'arriveGZHH',String(data.arriveGZHH)); ///是否到过广东、浙江、河南、湖南省。
+                 this.$set(this.form,'stayInHubei',String(data.stayInHubei)); //现在是否仍在湖北出差、休假、旅游
+                 this.$set(this.form,'confirmIll',String(data.confirmIll)); //是否为疑似病例
+                 this.$set(this.form,'touchHuBeiPerson',String(data.touchHuBeiPerson)); //密切接触来自或到达过武汉及湖北其他地区人员
+
+                this.$set(this.form,'province',data.province); //如果去过/来自广东、浙江、河南、湖南省等，要填是哪个省份的
+                this.$set(this.form,'arriveLiuZhou',data.arriveLiuZhou); //到达柳州时间
+                this.$set(this.form,'leaveLiuZhou',data.leaveLiuZhou); //离开柳州时间
+                this.$set(this.form,'epidemicArea',data.epidemicArea); //疫区居住地
+                this.$set(this.form,'addressInLiuZhou',data.addressInLiuZhou); //柳州居住地
+                this.$set(this.form,'leaveHubei',data.leaveHubei); //离开湖北的时间：
+                this.$set(this.form,'leaveHubeiWay',data.leaveHubeiWay); //离开湖北的方式
+                this.$set(this.form,'leaveTogetherPersonName',data.leaveTogetherPersonName); //离开时同行的人姓名
+                this.$set(this.form,'manageMethods',data.manageMethods); //管控措施
+                this.$set(this.form,'touchHuBeiPersonName',data.touchHuBeiPersonName); //接触过疫区人员的姓名
+                this.$set(this.form,'touchHuBeiTime',data.touchHuBeiTime); //密切接触的时间
+                this.$set(this.form,'touchHuBeiDescription',data.touchHuBeiDescription); //密切接触过程的具体描述
+                this.$set(this.form,'schoolClass',data.schoolClass); //年级班级（专业）
+                this.$set(this.form,'myHealth',data.myHealth); //当天本人健康状况
+                this.$set(this.form,'temperature',data.temperature); //发烧多少度，如果发烧的话需要填写
+                this.$set(this.form,'myfamilyHealth',data.myfamilyHealth); //当天家庭健康状况
+                this.$set(this.form,'intro',data.intro); //其他说明
+
             },
             changeIdentity(val){//当改变学生或教师身份时.val为当前的值
                 if(this.form.name!=''||this.form.teacherNumber!=''||this.form.studentNumber!=''){//这里仅通过名字判断，该用户是否已经从服务端获取了自己的信息
@@ -407,6 +442,7 @@
                                     this.form.sex=teacher.sex;
                                     this.form.tel=teacher.tel;
                                     this.form.identityCard=teacher.identityCard;
+                                    this.getQuestionnaire();//读取上次调查表的信息，如果能读取到，则覆盖表单所有信息
                                 }else{//如果没有读取到教师记录
                                     this.showXinxi = false;
                                     this.$toast('教师号不正确');;
@@ -453,37 +489,38 @@
                     this.$toast('请输入至少5个字符以上');;
                 }
             },
-            outlanderChange(val){//当前切是否为市外人员时触发
-                //表单数据重新整理
-                if(val=='true'){//如果是市外人员，清空另外的选项
-                    //那么将所有到达过外省的都设置为false
-                    this.form.arriveWuHan='';
-                    this.form.arriveHuBei='';
-                    this.form.arriveGZHH='';
-                }else if(val=='false'){//如果不是市外人员
-                    // 那么将所有外省来的选项的都设置为false
-                    this.form.comefromHuBei='';
-                    this.form.comefromWuHan='';
-                    this.form.comeFromGZHH='';
-                }
+            getQuestionnaire() {//读取昨天回答的调查问卷
+                this.$axios
+                    .get("/api/frontdesk/questionnaire/yesterday",{//读取上次的调查问卷
+                        params: {
+                            identity:this.form.identity,
+                            teacherOrStudentNumber:this.form.teacherNumber,
+                        }
+                    })
+                    .then(response => {
+                        //获取返回数据/
+                        let msg = response.data;
+                        if (msg.code === 0) {
+                            let questionnaire=msg.data;
+                            if(questionnaire!=null){//如果能读取到昨天的记录
+                                this.$messagebox.confirm('系统检测到您昨天上报过数据，是否读取上次数据作为本次上报的内容?').
+                                then(action => {
+                                    //this.form=Object.assign(this.form,  questionnaire);//把读取到的记录加载过来
+                                    this.$messagebox("提示","已经成功加载上次填报内容。由于每天调查表内容都可能变动，请您在提交前务必重新核对数据，谢谢合作")
+                                    this.getForm(questionnaire);//把读取到的记录加载到本次表单
+                                });
+                            }
+                        } else {
+                            this.$toast(msg.msg);
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    });
             },
             submitForm() {//将更新后的值传到服务端保存
                 let validate=true;//默认验证通过
                 //表单数据重新整理
-                if(this.outlander=='true'){//如果是市外人员
-                    //那么将所有到达过外省的都设置为false
-                    this.form.arriveWuHan='false';
-                    this.form.arriveHuBei='false';
-                    this.form.arriveGZHH='false';
-                }else if(this.outlander=='false'){//如果不是市外人员
-                    // 那么将所有外省来的选项的都设置为false
-                    this.form.comefromHuBei='false';
-                    this.form.comefromWuHan='false';
-                    this.form.comeFromGZHH='false';
-                }else{//如果没有选择是否为市外人员
-                    validate=false;
-                    this.$toast("必须选择是否是市外人员");
-                }
 
                 if(validate){//如果验证通过
                     //提交表单事件

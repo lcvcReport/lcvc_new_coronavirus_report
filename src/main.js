@@ -14,8 +14,9 @@ axios.defaults.headers ={
 //ljy特别说明：在和服务端交互时，服务端会返回客户端set-cookie那一行有path=/ebuy，说明这个cookie是有范围限制的，只能在/ebuy才会带上cookie
 // 所以如果使用proxyTable代理要注意这个问题，虚拟目录必须和服务端项目的地址一致
 // 给axios设置baseURL，用于开发模式调用
-axios.defaults.baseURL = "http://140.143.186.207:8091";//设置初始URL
-//axios.defaults.baseURL = "http://220.173.103.143:8091";// 学校服务器
+//axios.defaults.baseURL = "http://localhost:8091";//本地服务器
+//axios.defaults.baseURL = "http://140.143.186.207:8091";//张峰的服务器
+axios.defaults.baseURL = "http://220.173.103.143:8091";// 学校服务器
 
 axios.defaults.withCredentials=true;  // 跨域携带cookie
 
