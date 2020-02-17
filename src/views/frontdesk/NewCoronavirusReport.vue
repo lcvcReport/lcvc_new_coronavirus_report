@@ -44,6 +44,8 @@
 
 
       <template v-if="form.identity=='teacher'">
+        <mt-cell title="所属部门："></mt-cell>
+        <mt-field  placeholder="请输入部门" v-model="form.department" disabled></mt-field>
         <mt-cell title="请输入您的岗位或所授学科"></mt-cell>
         <mt-radio v-model="form.workType" :options="['专任教师','行政人员']"></mt-radio>
         <!--<mt-field  placeholder="请输入" v-model="form.workType"></mt-field>-->
@@ -119,11 +121,11 @@
         <mt-field placeholder="请输入" v-model="form.manageMethods"></mt-field>
       </template>
 
-      <!--去过湖北的话，就要填是否停留在该地-->
-      <template v-if="form.arriveHuBei=='true' || form.arriveWuHan=='true'">
-        <mt-cell title="现在是否仍在湖北出差、休假、旅游、探亲等短时停留："></mt-cell>
+      <!--去过湖北（含武汉市）、广东、浙江、河南、湖南的话，就要填是否停留在该地-->
+      <template v-if="form.arriveHuBei=='true' || form.arriveWuHan=='true'||form.arriveGZHH=='true'">
+        <mt-cell title="现在是否仍在湖北（含武汉市）、广东、浙江、河南、湖南出差、休假、旅游、探亲等短时停留："></mt-cell>
         <mt-radio v-model="form.stayInHubei" :options="stayInHubeiOptions"></mt-radio>
-        <!--如果停留在湖北-->
+        <!--如果停留在湖北（含武汉市）、广东、浙江、河南、湖南的话-->
         <template v-if="form.stayInHubei =='true'">
           <mt-cell title="离开柳州的时间："></mt-cell>
           <mt-field  placeholder="请输入" v-model="form.leaveLiuZhou" type="date"></mt-field>
@@ -312,7 +314,11 @@
                         label: "发热和咳嗽",
                         value: "发热和咳嗽"
                     }
-                ]
+                ],
+                departmentoptions:['信息工程系','院领导','党政办','党委组织部（人事处）','宣传部','学工处','教科处','招就处','资产管理处','后勤处',
+                    '保卫处','计财处','质量办','纪检监察室','院工会（离退办）','院团委','教职员工发展中心','信息技术服务中心','图书馆','经济管理系',
+                    '师范系','建筑工程与艺术设计系','机电与汽车工程系','国教院','体育教学部','马院','开放学院','鹿寨分院','病假','其他','新农村第一书记'
+                    ,'借调至职教所','借调教育厅']
             };
         },
         mounted() {
@@ -326,6 +332,7 @@
                 this.$set(this.form,'studentNumber',''); //学号
                 this.$set(this.form,'name',''); //姓名
                 this.$set(this.form,'sex',''); //性别
+                this.$set(this.form,'department',''); //部门
                 this.$set(this.form,'workType',''); //工种
                 this.$set(this.form,'registeredPlace',''); //户口所在地
                 this.$set(this.form,'identityCard',''); //身份证号码
@@ -365,6 +372,7 @@
                 this.$set(this.form,'studentNumber',data.studentNumber); //学号
                 this.$set(this.form,'name',data.name); //姓名
                 this.$set(this.form,'sex',data.sex); //性别
+                this.$set(this.form,'department',data.department); //部门
                 this.$set(this.form,'workType',data.workType); //工种
                 this.$set(this.form,'registeredPlace',data.registeredPlace); //户口所在地
                 this.$set(this.form,'identityCard',data.identityCard); //身份证号码
@@ -438,11 +446,13 @@
                                 let teacher=msg.data;
                                 if(teacher!=null){//如果读取到教师记录
                                     this.showXinxi = true;
-                                    this.form.name=teacher.name;
-                                    this.form.sex=teacher.sex;
                                     this.form.tel=teacher.tel;
                                     this.form.identityCard=teacher.identityCard;
-                                    this.getQuestionnaire();//读取上次调查表的信息，如果能读取到，则覆盖表单所有信息
+                                    //这个以教师表的为准，如果被覆盖后面要加上
+                                    this.$set(this.form,'name',teacher.name); //姓名
+                                    this.$set(this.form,'sex',teacher.sex); //性别
+                                    this.$set(this.form,'department',teacher.department); //部门
+                                    this.getQuestionnaire(teacher);//读取上次调查表的信息，如果能读取到，则覆盖当前表单所有信息
                                 }else{//如果没有读取到教师记录
                                     this.showXinxi = false;
                                     this.$toast('教师号不正确');;
@@ -489,7 +499,7 @@
                     this.$toast('请输入至少5个字符以上');;
                 }
             },
-            getQuestionnaire() {//读取昨天回答的调查问卷
+            getQuestionnaire(data) {//读取昨天回答的调查问卷。data为传递过来的教师或老师数据
                 this.$axios
                     .get("/api/frontdesk/questionnaire/yesterday",{//读取上次的调查问卷
                         params: {
@@ -507,6 +517,9 @@
                                 then(action => {
                                     //this.form=Object.assign(this.form,  questionnaire);//把读取到的记录加载过来
                                     this.$messagebox("提示","已经成功加载上次填报内容。由于每天调查表内容都可能变动，请您在提交前务必重新核对数据，谢谢合作")
+                                    if(this.form.identity=='teacher'){
+                                        questionnaire.department=data.department;//这个以教师表的为准，不被覆盖。因为该字段是第一次填写，原调查表内容为空，以后删除。
+                                    }
                                     this.getForm(questionnaire);//把读取到的记录加载到本次表单
                                 });
                             }
